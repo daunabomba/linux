@@ -3104,7 +3104,6 @@ config X86_X32_ABI
 	# compressed debug sections to x86_x32 properly:
 	# https://github.com/ClangBuiltLinux/linux/issues/514
 	# https://github.com/ClangBuiltLinux/linux/issues/1141
-	depends on $(success,$(OBJCOPY) --version | head -n1 | grep -qv llvm)
 	help
 	  Include code to run binaries for the x32 native 32-bit ABI
 	  for 64-bit processors.  An x32 process gets access to the
