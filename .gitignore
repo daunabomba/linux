@@ -184,3 +184,7 @@ sphinx_*/
 
 # Rust analyzer configuration
 /rust-project.json
+
+__pycache__/
+/initfilelist
+.una_config
