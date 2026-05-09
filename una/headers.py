@@ -28,6 +28,7 @@ def target_configure(staging_dir, target_dir, arch, kconfig):
 
     cmd_img = [
         "make",
+        "V=1",
         "LLVM=1",
         f"ARCH={karch}",
         "HOSTCC=clang",
@@ -45,6 +46,7 @@ def target_headers_install(staging_dir, target_dir, arch, kconfig):
 
     cmd_img = [
         "make",
+        "V=1",
         "LLVM=1",
         f"ARCH={karch}",
         "HOSTCC=clang",

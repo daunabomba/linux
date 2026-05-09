@@ -45,6 +45,7 @@ def target_configure(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Pa
 
     cmd = [
         "make",
+        "V=1",
         "LLVM=1",
         "HOSTCC=clang",
         "CC=clang",
@@ -62,6 +63,7 @@ def target_build(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Path =
     cmd = [
         "make",
         f"-j{make_jobs}",
+        "V=1",
         "LLVM=1",
         f"ARCH={karch}",
         "vmlinux",
@@ -80,6 +82,7 @@ def target_install(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Path
     # 1. Modules install
     cmd_mod = [
         "make",
+        "V=1",
         "LLVM=1",
         f"ARCH={karch}",
         "HOSTCC=clang",
