@@ -3,10 +3,26 @@ import os
 import multiprocessing
 import shutil
 from pathlib import Path
-from mods.filelist import generate_list
 import sys
+from mods.filelist import generate_list
 from mods.utils import get_kernel_arch
-from mods.build import get_build_env
+from mods.build import get_build_env, SubprocessRunner
+
+
+# Module-level runner, initialized when needed
+_runner = None
+
+def _get_runner(trace_file=None):
+    """Get or create the subprocess runner."""
+    global _runner
+    if _runner is None:
+        _runner = SubprocessRunner(trace_file)
+    return _runner
+
+def set_trace_file(trace_file):
+    """Set the trace file for subprocess logging."""
+    global _runner
+    _runner = SubprocessRunner(trace_file)
 
 def get_ktarget(arch):
     if arch in ["x32", "x86_64"]:
@@ -46,7 +62,7 @@ def target_configure(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Pa
         f"ARCH={karch}",
         "oldconfig"
     ]
-    subprocess.run(cmd, cwd=repo_root, env=env, check=True)
+    _get_runner().run(cmd, cwd=repo_root, env=env, check=True)
 
 def target_build(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Path = None):
     karch = get_kernel_arch(arch)
@@ -63,7 +79,7 @@ def target_build(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Path =
         "vmlinux",
         "modules"
     ]
-    subprocess.run(cmd, cwd=repo_root, env=get_build_env(), check=True)
+    _get_runner().run(cmd, cwd=repo_root, env=get_build_env(), check=True)
 
 def target_install(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Path = None):
     karch = get_kernel_arch(arch)
@@ -84,13 +100,13 @@ def target_install(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Path
         f"INSTALL_MOD_PATH={image_dir}",
         "modules_install"
     ]
-    subprocess.run(cmd_mod, cwd=repo_root, env=env, check=True)
+    _get_runner().run(cmd_mod, cwd=repo_root, env=env, check=True)
 
     # ... rest ...
     # 2. Cleanup before image build
     usr_path = repo_root / "usr"
     if usr_path.exists():
-        subprocess.run("rm -f usr/.gen* usr/.bu* usr/*.a usr/*.cpio usr/*.o usr/.initramfs_*",
+        _get_runner().run("rm -f usr/.gen* usr/.bu* usr/*.a usr/*.cpio usr/*.o usr/.initramfs_*",
                        shell=True, cwd=repo_root, check=False)
 
     # 3. Generate file list for initramfs
@@ -123,4 +139,4 @@ def target_install(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Path
         "CC=clang",
         f"{ktarget}"
     ]
-    subprocess.run(cmd_img, cwd=repo_root, env=env, check=True)
+    _get_runner().run(cmd_img, cwd=repo_root, env=env, check=True)
