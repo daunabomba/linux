@@ -4,15 +4,9 @@ import subprocess
 import os
 from pathlib import Path
 from mods.utils import get_kernel_arch
+from mods.build import get_build_env
 
 """Linux kernel headers install (usr/include/linux → staging)"""
-
-def get_env():
-    env = os.environ.copy()
-    # Path to our tools-built LLVM tools
-    tools_bin = Path(__file__).parent.parent.parent.parent / "bld" / "tools" / "bin"
-    env["PATH"] = f"{tools_bin}:{env.get('PATH', '')}"
-    return env
 
 
 def target_configure(staging_dir, target_dir, arch, kconfig):
@@ -24,7 +18,7 @@ def target_configure(staging_dir, target_dir, arch, kconfig):
     shutil.copy(config_path, config_dst)
 
     karch = get_kernel_arch(arch)
-    env = get_env()
+    env = get_build_env()
 
     cmd_img = [
         "make",
@@ -42,7 +36,7 @@ def target_headers_install(staging_dir, target_dir, arch, kconfig):
     repo_root = Path(__file__).parent.parent
     
     karch = get_kernel_arch(arch)
-    env = get_env()
+    env = get_build_env()
 
     cmd_img = [
         "make",
