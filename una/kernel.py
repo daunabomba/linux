@@ -6,13 +6,7 @@ from pathlib import Path
 from mods.filelist import generate_list
 import sys
 from mods.utils import get_kernel_arch
-
-def get_env():
-    env = os.environ.copy()
-    # Path to our tools-built LLVM tools
-    tools_bin = Path(__file__).parent.parent.parent.parent / "bld" / "tools" / "bin"
-    env["PATH"] = f"{tools_bin}:{env.get('PATH', '')}"
-    return env
+from mods.build import get_build_env
 
 def get_ktarget(arch):
     if arch in ["x32", "x86_64"]:
@@ -36,7 +30,7 @@ def target_configure(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Pa
         print(f"Kernel: Using existing .config")
     
     # Standard kernel build environment
-    env = get_env()
+    env = get_build_env()
 
     # Pre-configure steps
     (repo_root / ".scmversion").write_text("")
@@ -69,14 +63,14 @@ def target_build(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Path =
         "vmlinux",
         "modules"
     ]
-    subprocess.run(cmd, cwd=repo_root, env=get_env(), check=True)
+    subprocess.run(cmd, cwd=repo_root, env=get_build_env(), check=True)
 
 def target_install(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Path = None):
     karch = get_kernel_arch(arch)
     ktarget = get_ktarget(arch)
     print(f"Kernel ({arch}/{karch}): target_install (modules_install, generate_list, {ktarget})")
     repo_root = Path(__file__).parent.parent
-    env = get_env()
+    env = get_build_env()
     make_jobs = multiprocessing.cpu_count()
 
     # 1. Modules install
