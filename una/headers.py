@@ -4,9 +4,24 @@ import subprocess
 import os
 from pathlib import Path
 from mods.utils import get_kernel_arch
-from mods.build import get_build_env
+from mods.build import get_build_env, SubprocessRunner
 
 """Linux kernel headers install (usr/include/linux → staging)"""
+
+# Module-level runner, initialized when needed
+_runner = None
+
+def _get_runner(trace_file=None):
+    """Get or create the subprocess runner."""
+    global _runner
+    if _runner is None:
+        _runner = SubprocessRunner(trace_file)
+    return _runner
+
+def set_trace_file(trace_file):
+    """Set the trace file for subprocess logging."""
+    global _runner
+    _runner = SubprocessRunner(trace_file)
 
 
 def target_configure(staging_dir, target_dir, arch, kconfig):
@@ -29,7 +44,7 @@ def target_configure(staging_dir, target_dir, arch, kconfig):
         "CC=clang",
         "olddefconfig"
     ]
-    subprocess.run(cmd_img, cwd=repo_root, env=env, check=True)
+    _get_runner().run(cmd_img, cwd=repo_root, env=env, check=True)
 
 def target_headers_install(staging_dir, target_dir, arch, kconfig):
     """Install public headers to staging/usr/include"""
@@ -48,7 +63,7 @@ def target_headers_install(staging_dir, target_dir, arch, kconfig):
         "headers_install",
         f"INSTALL_HDR_PATH={staging_dir}/usr",
     ]
-    subprocess.run(cmd_img, cwd=repo_root, env=env, check=True)
+    _get_runner().run(cmd_img, cwd=repo_root, env=env, check=True)
 
     # Cleanup internal headers (Kbuild filters most)
     internal = ["generated"]
