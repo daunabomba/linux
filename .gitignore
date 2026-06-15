@@ -194,3 +194,7 @@ sphinx_*/
 
 # bc language scripts (not LLVM bitcode)
 !kernel/time/timeconst.bc
+
+__pycache__/
+/initfilelist
+.una_config
