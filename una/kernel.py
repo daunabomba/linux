@@ -70,6 +70,8 @@ def target_build(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Path =
     repo_root = Path(__file__).parent.parent
     make_jobs = multiprocessing.cpu_count()
 
+    (repo_root / ".version").unlink(missing_ok=True)
+
     cmd = [
         "make",
         f"-j{make_jobs}",
