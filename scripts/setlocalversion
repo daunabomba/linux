@@ -58,7 +58,7 @@ try_tag() {
 scm_version()
 {
 	local short=false
-	local no_dirty=false
+	local no_dirty=true
 	local tag
 
 	while [ $# -gt 0 ];
