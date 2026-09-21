@@ -91,6 +91,8 @@ def target_install(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Path
     env = get_build_env()
     make_jobs = multiprocessing.cpu_count()
 
+    (repo_root / ".version").unlink(missing_ok=True)
+
     # 1. Modules install
     cmd_mod = [
         "make",
@@ -130,6 +132,8 @@ def target_install(staging_dir: Path, image_dir: Path, arch="x32", kconfig: Path
             ignore_patterns.append(r'^usr/lib/modules($|/)')
 
     generate_list(str(image_dir), output_file=str(init_list_path), ignore_patterns=ignore_patterns)
+
+    (repo_root / ".version").unlink(missing_ok=True)
 
     # 4. Final kernel image (bzImage/Image.gz) with initramfs
     cmd_img = [
